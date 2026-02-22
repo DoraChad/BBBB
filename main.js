@@ -132,12 +132,12 @@ for (let i = 1; i <= 5; i++) {
 }
 
 (async () => {
-    calculatePoints(await getFullLeaderboards()).forEach(player => {
+    calculatePoints(await getFullLeaderboards()).forEach((player, placement) => {
         const entry = document.createElement("div");
         entry.className = "leaderboard-entry";
 
         const name = document.createElement("p");
-        name.textContent = player.nickname;
+        name.textContent = `${placement + 1}. ${player.nickname}`;
         name.style.fontSize = "25px";
         name.style.marginLeft = "10px";
         entry.appendChild(name);
@@ -150,6 +150,5 @@ for (let i = 1; i <= 5; i++) {
         entry.appendChild(points);
 
         leaderboard.appendChild(entry);
-        console.log(player);
     });
 })();
