@@ -1,6 +1,30 @@
 const proxyURL = ["https://polyproxy.orangywastaken.workers.dev/v6/leaderboard?version=0.6.0-beta3&trackId=", "&skip=0&amount=200&onlyVerified=false"]
 const trackIds = ["835e67c5949e2506ef87026801600a325c1c0f7367e10102640a1906c067735a", "51c7265ecfcb22d1144f6eb3fb0843e32afa2f86a2125dfd70453dc682ebc359", "d48294e4de5d8e606c0c29769cdb69cbbb02828022bc142a3e60570fa91defd5", "473408bd53696e4ee0e76b6f6101812ed967696c24fd08f740afabe946f2bce0", "e03503f8445fe7164ce7fe278cfc7f0c0fca4d21c11c701774f5fa1297a72805"]
 
+const saveVariableToFile = function(data, filename = "data.json") {
+    const json = JSON.stringify(data, null, 2);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    a.click();
+
+    URL.revokeObjectURL(url);
+}
+
+async function loadVariableFromGitHub(url) {
+    const response = await fetch(`https://raw.githubusercontent.com/DoraChad/BBBB/refs/heads/main/${url}`);
+
+    if (!response.ok) {
+        throw new Error(`Failed to fetch file: ${response.status}`);
+    }
+
+    const text = await response.text();
+    return JSON.parse(text);
+}
+
 function popup(message) {
     const msg = document.createElement('div');
     msg.className = 'popup';
@@ -41,28 +65,7 @@ async function fetchLeaderboard(trackNumber) {
 }
 
 async function getFullLeaderboards(totalTracks = 5) {
-    const leaderboards = [];
-
-    for (let trackIndex = 0; trackIndex < totalTracks; trackIndex++) {
-        const lb = await fetchLeaderboard(trackIndex);
-        leaderboards.push(lb);
-    }
-
-    const playerData = {};
-
-    leaderboards.forEach((lb, trackIndex) => {
-        lb.entries.forEach((entry, pos) => {
-            if (!playerData[entry.userId]) {
-            playerData[entry.userId] = {
-                nickname: entry.nickname,
-                placements: Array(totalTracks).fill(null)
-            };
-            }
-            playerData[entry.userId].placements[trackIndex] = pos + 1;
-        });
-    });
-
-    return playerData;
+    return await loadVariableFromGitHub("data.json");
 }
 
 function calculatePoints(playerMap) {
